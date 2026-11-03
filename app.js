@@ -1,5 +1,5 @@
 require('dotenv').config();
-const mongoose = require('mongoose');   // tambahkan di antara require lainnya
+const mongoose = require('mongoose');
 const express = require('express');
 const cors = require('cors');
 
@@ -8,7 +8,7 @@ const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
 
 
 const kapalRoutes = require('./routes/kapalRoutes');
-const dermagaRoutes = require('./routes/dermagaRoutes'); 
+const dermagaRoutes = require('./routes/dermagaRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3000;
 // ---------- Middleware global ----------
 app.use(logger);
 app.use(cors({
-  origin: process.env.CORS_ORIGIN,
+  origin: process.env.CORS_ORIGIN || '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
 app.use(express.json());
@@ -34,14 +34,34 @@ app.use('/dermaga', dermagaRoutes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log('Terhubung ke MongoDB');
-    app.listen(PORT, () => console.log(`Server berjalan di http://localhost:${PORT}`));
-  })
-  .catch((err) => {
-    console.error('Gagal terhubung:', err.message);
-    process.exit(1);
+async function startServer() {
+  if (!process.env.MONGODB_URI) {
+    throw new Error('MONGODB_URI belum diatur. Salin .env.example menjadi .env lalu isi konfigurasinya.');
+  }
+
+  await mongoose.connect(process.env.MONGODB_URI);
+  console.log('Terhubung ke MongoDB');
+
+  const server = app.listen(PORT, () => {
+    console.log(`Server berjalan di http://localhost:${PORT}`);
   });
-});
+
+  const shutdown = async () => {
+    server.close();
+    await mongoose.disconnect();
+    process.exit(0);
+  };
+
+  process.once('SIGINT', shutdown);
+  process.once('SIGTERM', shutdown);
+}
+
+if (require.main === module) {
+  startServer().catch(async (err) => {
+    console.error(`Gagal menjalankan server: ${err.message}`);
+    await mongoose.disconnect();
+    process.exitCode = 1;
+  });
+}
+
+module.exports = { app, startServer };

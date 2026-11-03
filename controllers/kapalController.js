@@ -4,7 +4,6 @@ const { errorHttp } = require('../middlewares/errorHandler');
 const LIMIT_DEFAULT = 10;
 const LIMIT_MAKS = 50;
 const FIELD_SORT = ['kode', 'nama', 'jenis', 'createdAt'];
-const FIELD_BOLEH_DIPILIH = ['kode', 'nama', "kapasitas", "jenis", "rute", "dermagaId", 'createdAt'];
 
 // Mengubah bilangan dari query string menjadi bilangan bulat yang aman
 function angkaAman(nilai, bawaan, min, maks) {
@@ -24,16 +23,23 @@ exports.create = async (req, res) => {
 
 exports.getAll = async (req, res) => {
   const filter = {};
-  if (req.query.kota) {
-    filter['alamat.kota'] = String(req.query.kota);
+  if (req.query.jenis) {
+    filter.jenis = String(req.query.jenis);
   }
-  const data = await Kapal.find(filter);
-  res.json(data);
-};
-{
+
+  if (req.query.dermagaId) {
+    filter.dermagaId = String(req.query.dermagaId);
+  }
+  if (req.query.dermagaAwal) {
+    filter['rute.dermagaAwal'] = String(req.query.dermagaAwal);
+  }
+  if (req.query.dermagaTujuan) {
+    filter['rute.dermagaTujuan'] = String(req.query.dermagaTujuan);
+  }
+
   const page = angkaAman(req.query.page, 1, 1, Number.MAX_SAFE_INTEGER);
   const limit = angkaAman(req.query.limit, LIMIT_DEFAULT, 1, LIMIT_MAKS);
-    // Sorting: ?sort=nama (naik) atau ?sort=-nama (turun). Bawaan: terbaru dulu
+  // ?sort=nama untuk urutan naik atau ?sort=-nama untuk urutan turun.
   const sortParam = String(req.query.sort || '-createdAt');
   const arah = sortParam.startsWith('-') ? -1 : 1;
   const sortField = sortParam.replace(/^-/, '');

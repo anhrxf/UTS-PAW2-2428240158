@@ -13,6 +13,16 @@ function errorHandler(err, req, res, next) {
     return res.status(400).json({ message: 'Format JSON tidak valid' });
   }
 
+  if (err.name === 'ValidationError') {
+    return res.status(400).json({ message: err.message });
+  }
+  if (err.name === 'CastError' || err.name === 'BSONError') {
+    return res.status(400).json({ message: 'ID atau nilai data tidak valid' });
+  }
+  if (err.code === 11000) {
+    return res.status(409).json({ message: 'Data dengan nilai unik tersebut sudah ada' });
+  }
+
   const status = err.status || 500;
 
   if (status === 500) {

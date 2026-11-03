@@ -11,13 +11,13 @@ exports.create = async (req, res) => {
 exports.getAll = async (req, res) => {
   const filter = {};
   if (req.query.rute) {
-    filter['dermagaAwal.rute'] = String(req.query.rute);
-    filter['dermagaTujuan.rute'] = String(req.query.rute);
+    filter.rute = String(req.query.rute);
   }
-  if (req.query.dermaga) {
-    const dermaga = await Dermaga.findOne({ kode: String(req.query.dermaga).toUpperCase() });
-    // Kode dermaga tidak dikenal -> hasil kosong ($in: [] tidak cocok dengan apa pun)
-    filter.dermagaId = dermaga ? dermaga._id : { $in: [] };
+  if (req.query.jenis) {
+    filter.jenis = String(req.query.jenis);
+  }
+  if (req.query.kode) {
+    filter.kode = String(req.query.kode).toUpperCase();
   }
   const data = await Dermaga.find(filter);
   res.json(data);

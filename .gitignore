@@ -1,2 +1,4 @@
 node_modules/
-.env
+# Keep local environment files and secrets out of Git.
+.env*
+!.env.example
