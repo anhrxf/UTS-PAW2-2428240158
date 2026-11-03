@@ -3,7 +3,8 @@ const { errorHttp } = require('../middlewares/errorHandler');
 
 const LIMIT_DEFAULT = 10;
 const LIMIT_MAKS = 50;
-const FIELD_SORT = ['kode', 'nama', 'jenis', 'createdAt'];
+const FIELD_SORT = ['kodeKapal', 'nama', 'jenis', 'createdAt'];
+const FIELD_PROJECTION = '_id kodeKapal nama kapasitas jenis';
 
 // Mengubah bilangan dari query string menjadi bilangan bulat yang aman
 function angkaAman(nilai, bawaan, min, maks) {
@@ -42,19 +43,17 @@ exports.getAll = async (req, res) => {
   if (!FIELD_SORT.includes(sortField)) {
     throw errorHttp(400, `sort hanya boleh: ${FIELD_SORT.join(', ')}`);
   }
-  const [data, total] = await Promise.all([
-    Kapal.find(filter)
-      .sort({ [sortField]: arah, _id: 1 })
-      .skip((page - 1) * limit)
-      .limit(limit),
-    Kapal.countDocuments(filter),
-  ]);
+  const data = await Kapal.find(filter)
+    .select(FIELD_PROJECTION)
+    .sort({ [sortField]: arah, _id: 1 })
+    .skip((page - 1) * limit)
+    .limit(limit);
 
-  res.json({ data, page, limit, total, totalPages: Math.ceil(total / limit) });
+  res.json(data);
 };
 
 exports.getById = async (req, res) => {
-  const data = await Kapal.findById(req.params.id);
+  const data = await Kapal.findById(req.params.id).populate('dermagaId', 'kode nama');
   if (!data) throw errorHttp(404, 'Data tidak ditemukan');
   res.json(data);
 };

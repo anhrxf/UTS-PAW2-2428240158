@@ -44,32 +44,35 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 async function startServer() {
+  if (!process.env.MONGODB_URI) {
+    throw new Error('MONGODB_URI belum diatur. Salin .env.example menjadi .env untuk mengaktifkan akses database.');
+  }
+
+  await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 5000 });
+  console.log('Terhubung ke MongoDB');
+
   const server = app.listen(PORT, () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);
   });
 
   const shutdown = async () => {
-    server.close();
+    await new Promise((resolve, reject) => {
+      server.close((err) => (err ? reject(err) : resolve()));
+    });
     await mongoose.disconnect();
   };
 
   process.once('SIGINT', shutdown);
   process.once('SIGTERM', shutdown);
 
-  if (!process.env.MONGODB_URI) {
-    console.error('MONGODB_URI belum diatur. Salin .env.example menjadi .env untuk mengaktifkan akses database.');
-    return server;
-  }
-
-  mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 5000 })
-    .then(() => console.log('Terhubung ke MongoDB'))
-    .catch((err) => console.error(`Koneksi MongoDB gagal: ${err.message}`));
-
   return server;
 }
 
 if (require.main === module) {
-  startServer();
+  startServer().catch((err) => {
+    console.error(`Gagal menjalankan server: ${err.message}`);
+    process.exitCode = 1;
+  });
 }
 
 module.exports = { app, startServer };

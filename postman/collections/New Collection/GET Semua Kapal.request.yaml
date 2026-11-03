@@ -1,0 +1,5 @@
+$kind: http-request
+name: GET Semua Kapal
+url: http://localhost:3000/kapal
+method: GET
+order: 1790057171735

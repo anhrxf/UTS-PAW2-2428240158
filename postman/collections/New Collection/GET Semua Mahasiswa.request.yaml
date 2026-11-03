@@ -1,5 +1,0 @@
-$kind: http-request
-name: GET Semua Mahasiswa
-url: http://localhost:3000/mahasiswa
-method: GET
-order: 1790057171735

@@ -8,7 +8,7 @@ API Express.js dengan MongoDB untuk mengelola data dermaga dan kapal.
 2. Pasang dependensi dari folder proyek:
 
 	```powershell
-	npm install
+	npm ci
 	```
 
 3. Buat file konfigurasi lokal dengan menyalin `.env.example` menjadi `.env`, lalu sesuaikan nilainya. Jangan commit file `.env` karena berisi konfigurasi privat.
@@ -28,7 +28,7 @@ Server tersedia di `http://localhost:3000`. Endpoint baca dapat digunakan tanpa 
 ## Endpoint
 
 - `GET /kapal` — daftar kapal. Mendukung `page`, `limit`, `sort`, `jenis`, `dermagaId`, `dermagaAwal`, dan `dermagaTujuan`.
-- `GET /kapal/:id` — detail kapal.
+- `GET /kapal/:id` — detail kapal, termasuk `dermagaId` yang di-populate dengan kode dan nama dermaga.
 - `POST /kapal`, `PUT /kapal/:id`, `DELETE /kapal/:id` — kelola kapal (wajib API key).
 - `GET /dermaga` — daftar dermaga. Mendukung filter `kode`, `jenis`, dan `rute`.
 - `POST /dermaga` — tambah dermaga (wajib API key).
@@ -40,3 +40,8 @@ Opsional, isi data contoh tanpa menghapus dokumen lain:
 npm run seed
 ```
 
+`GET /kapal` selalu mengembalikan array dengan field `_id`, `kodeKapal`, `nama`, `kapasitas`, dan `jenis`. Filter `jenis` dapat digunakan, misalnya `GET /kapal?jenis=ketek`; `GET /kapal/:id` menyertakan informasi dermaga terkait.
+
+## Desain data
+
+`rute` disimpan dengan embedding karena selalu dibaca bersama kapal dan terdiri dari dua nilai kecil yang tidak dikelola terpisah. Dermaga disimpan sebagai referencing melalui `dermagaId` karena satu dermaga dapat dipakai banyak kapal dan detail dermaga dikelola sendiri; detailnya diambil dengan populate saat membaca satu kapal.

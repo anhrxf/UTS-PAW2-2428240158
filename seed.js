@@ -33,7 +33,7 @@ async function main() {
   const dermagaByKode = new Map(dermaga.map((item) => [item.kode, item._id]));
   const kapal = NAMA_KAPAL.map((nama, i) => ({
     nama,
-    kode: `K${String(i + 1).padStart(3, '0')}`,
+    kodeKapal: `K${String(i + 1).padStart(3, '0')}`,
     kapasitas: 20 + (i % 5) * 10,
     jenis: ['speedboat', 'ketek', 'kapal_wisata'][i % 3],
     rute: {
@@ -44,7 +44,7 @@ async function main() {
   }));
   await Kapal.bulkWrite(kapal.map((item) => ({
     updateOne: {
-      filter: { kode: item.kode },
+      filter: { kodeKapal: item.kodeKapal },
       update: { $set: item },
       upsert: true,
     },
