@@ -28,9 +28,16 @@ app.get('/', (req, res) => {
   res.send('Server Express.js berjalan!');
 });
 
+function requireDatabase(req, res, next) {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({ message: 'Database MongoDB belum terhubung' });
+  }
+  next();
+}
+
 // ---------- Route per modul ----------
-app.use('/kapal', kapalRoutes);
-app.use('/dermaga', dermagaRoutes);
+app.use('/kapal', requireDatabase, kapalRoutes);
+app.use('/dermaga', requireDatabase, dermagaRoutes);
 
 // ---------- Handler 404 dan error handler (paling bawah) ----------
 app.use(notFoundHandler);
