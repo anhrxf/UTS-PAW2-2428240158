@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const express = require('express');
 const cors = require('cors');
 
+mongoose.set('bufferCommands', false);
+
 const logger = require('./middlewares/logger');
 const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
 
@@ -11,7 +13,7 @@ const kapalRoutes = require('./routes/kapalRoutes');
 const dermagaRoutes = require('./routes/dermagaRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 // ---------- Middleware global ----------
 app.use(logger);
@@ -35,13 +37,6 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 async function startServer() {
-  if (!process.env.MONGODB_URI) {
-    throw new Error('MONGODB_URI belum diatur. Salin .env.example menjadi .env lalu isi konfigurasinya.');
-  }
-
-  await mongoose.connect(process.env.MONGODB_URI);
-  console.log('Terhubung ke MongoDB');
-
   const server = app.listen(PORT, () => {
     console.log(`Server berjalan di http://localhost:${PORT}`);
   });
@@ -49,19 +44,25 @@ async function startServer() {
   const shutdown = async () => {
     server.close();
     await mongoose.disconnect();
-    process.exit(0);
   };
 
   process.once('SIGINT', shutdown);
   process.once('SIGTERM', shutdown);
+
+  if (!process.env.MONGODB_URI) {
+    console.error('MONGODB_URI belum diatur. Salin .env.example menjadi .env untuk mengaktifkan akses database.');
+    return server;
+  }
+
+  mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 5000 })
+    .then(() => console.log('Terhubung ke MongoDB'))
+    .catch((err) => console.error(`Koneksi MongoDB gagal: ${err.message}`));
+
+  return server;
 }
 
 if (require.main === module) {
-  startServer().catch(async (err) => {
-    console.error(`Gagal menjalankan server: ${err.message}`);
-    await mongoose.disconnect();
-    process.exitCode = 1;
-  });
+  startServer();
 }
 
 module.exports = { app, startServer };

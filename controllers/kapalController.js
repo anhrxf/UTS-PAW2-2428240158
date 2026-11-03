@@ -13,12 +13,8 @@ function angkaAman(nilai, bawaan, min, maks) {
 }
 
 exports.create = async (req, res) => {
-  try {
-    const kapal = await Kapal.create(req.body);
-    res.status(201).json(kapal);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
+  const kapal = await Kapal.create(req.body);
+  res.status(201).json(kapal);
 };
 
 exports.getAll = async (req, res) => {

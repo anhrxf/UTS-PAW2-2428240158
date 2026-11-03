@@ -1,11 +1,7 @@
 const Dermaga = require('../models/dermagaModel');
 exports.create = async (req, res) => {
-  try {
-    const dermaga = await Dermaga.create(req.body);
-    res.status(201).json(dermaga);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
+  const dermaga = await Dermaga.create(req.body);
+  res.status(201).json(dermaga);
 };
 
 exports.getAll = async (req, res) => {
