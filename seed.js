@@ -3,34 +3,35 @@
 // data lama dihapus dulu.
 require('dotenv').config({ quiet: true });
 const mongoose = require('mongoose');
-const Prodi = require('./models/prodiModel');
-const Mahasiswa = require('./models/mahasiswaModel');
+const Dermaga = require('./models/dermagaModel');
+const Kapal = require('./models/kapalModel');
 
 const NAMA = ['Andi', 'Budi', 'Citra', 'Dewi', 'Eko', 'Fitri', 'Gita', 'Hadi', 'Indra', 'Joko',
   'Kiki', 'Lina', 'Maya', 'Nanda', 'Oka', 'Putri', 'Qori', 'Rina', 'Sari', 'Tono',
   'Umar', 'Vina', 'Wawan', 'Yuni', 'Zaki'];
-const KOTA = ['Palembang', 'Indralaya', 'Prabumulih', 'Lubuklinggau'];
+const RUTE = ['Palembang', 'Indralaya', 'Prabumulih', 'Lubuklinggau'];
 
 async function main() {
   await mongoose.connect(process.env.MONGODB_URI);
-  await Mahasiswa.deleteMany({});
-  await Prodi.deleteMany({});
+  await Dermaga.deleteMany({});
+  await Kapal.deleteMany({});
 
-  const prodi = await Prodi.insertMany([
-    { kode: 'SI', nama: 'Sistem Informasi' },
-    { kode: 'TI', nama: 'Teknik Informatika' },
-    { kode: 'MI', nama: 'Manajemen Informatika' },
+  const dermaga = await Dermaga.insertMany([
+    { kode: 'D001', nama: 'Dermaga A' },
+    { kode: 'D002', nama: 'Dermaga B' },
+    { kode: 'D003', nama: 'Dermaga C' },
   ]);
 
-  const mahasiswa = NAMA.map((nama, i) => ({
+  const kapal = NAMA.map((nama, i) => ({
     nama,
-    nim: String(2301001 + i),
-    alamat: { jalan: `Jl. Contoh No. ${i + 1}`, kota: KOTA[i % KOTA.length] },
-    prodiId: prodi[i % 3]._id, // SI, TI, MI bergantian
+    kode: `K${String(i + 1).padStart(3, '0')}`,
+    jenis: ['speedboat', 'ketek', 'kapal_wisata'][i % 3],
+    rute: { asal: RUTE[i % RUTE.length], tujuan: RUTE[(i + 1) % RUTE.length] },
+    dermagaId: dermaga[i % 3]._id,
   }));
-  await Mahasiswa.insertMany(mahasiswa);
+  await Kapal.insertMany(kapal);
 
-  console.log(`Seed selesai: ${prodi.length} prodi, ${mahasiswa.length} mahasiswa`);
+  console.log(`Seed selesai: ${dermaga.length} dermaga, ${kapal.length} kapal`);
   await mongoose.disconnect();
 }
 

@@ -1,17 +1,19 @@
 const mongoose = require('mongoose');
 
-const alamatSchema = new mongoose.Schema({
-  jalan: String,
-  kota: String,
+const ruteSchema = new mongoose.Schema({
+  dermagaAwal: String,
+  dermagaTujuan: String,
 }, { _id: false });
 
 
-const mahasiswaSchema = new mongoose.Schema({
+const KapalSchema = new mongoose.Schema({
+  kode: { type: String, required: [true, 'kode wajib diisi'], unique: true, trim: true },
   nama: { type: String, required: [true, 'nama wajib diisi'], trim: true },
-  nim: { type: String, required: [true, 'nim wajib diisi'], unique: true, trim: true },
-  alamat: alamatSchema,
-  prodiId: { type: mongoose.Schema.Types.ObjectId, ref: 'Prodi' },
+  kapasitas: { type: Number, required: [true, 'kapasitas wajib diisi'], min: [1, 'kapasitas minimal 1'] },
+  jenis: { type: String, required: [true, 'jenis wajib diisi'], enum: ['speedboat', 'ketek', 'kapal_wisata'] },
+  rute: { type: ruteSchema, required: [true, 'rute wajib diisi'] },
+  dermagaId: { type: mongoose.Schema.Types.ObjectId, ref: 'Dermaga' },
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('Mahasiswa', mahasiswaSchema);
+module.exports = mongoose.model('Kapal', KapalSchema);

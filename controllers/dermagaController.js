@@ -1,4 +1,4 @@
-const Prodi = require('../models/dermagaModel');
+const Dermaga = require('../models/dermagaModel');
 exports.create = async (req, res) => {
   try {
     const dermaga = await Dermaga.create(req.body);
@@ -12,6 +12,7 @@ exports.getAll = async (req, res) => {
   const filter = {};
   if (req.query.rute) {
     filter['dermagaAwal.rute'] = String(req.query.rute);
+    filter['dermagaTujuan.rute'] = String(req.query.rute);
   }
   if (req.query.dermaga) {
     const dermaga = await Dermaga.findOne({ kode: String(req.query.dermaga).toUpperCase() });
