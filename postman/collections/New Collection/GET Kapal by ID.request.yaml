@@ -1,0 +1,5 @@
+$kind: http-request
+name: GET Kapal by ID
+url: http://localhost:3000/kapal/6af2a9ee14c06935bb30b6c7
+method: GET
+order: 1790057171738

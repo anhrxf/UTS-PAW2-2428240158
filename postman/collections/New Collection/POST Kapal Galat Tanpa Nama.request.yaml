@@ -1,0 +1,21 @@
+$kind: http-request
+name: POST Kapal Galat Tanpa Nama
+url: http://localhost:3000/kapal
+method: POST
+headers:
+  x-api-key: kunci-rahasia-uts
+  Content-Type: application/json
+body:
+  type: json
+  raw: |-
+    {
+      "kodeKapal": "KPL-ERR-01",
+      "kapasitas": 15,
+      "jenis": "speedboat",
+      "rute": {
+        "dermagaAwal": "Dermaga Benteng Kuto Besak",
+        "dermagaTujuan": "Dermaga Pulau Kemaro"
+      },
+      "dermagaId": "6af2a8e78db382248b206f56"
+    }
+order: 1790057171739

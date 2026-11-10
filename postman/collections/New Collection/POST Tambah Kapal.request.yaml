@@ -9,14 +9,14 @@ body:
   type: json
   raw: |-
     {
-      "kodeKapal": "KPL-01",
-      "nama": "Contoh nama",
-      "kapasitas": 11,
+      "kodeKapal": "KPL-2428240158-01",
+      "nama": "Kapal Wisata Anhar",
+      "kapasitas": 25,
       "jenis": "speedboat",
       "rute": {
-        "dermagaAwal": "Contoh dermagaAwal",
-        "dermagaTujuan": "Contoh dermagaTujuan"
+        "dermagaAwal": "Dermaga Benteng Kuto Besak",
+        "dermagaTujuan": "Dermaga Pulau Kemaro"
       },
-      "dermagaId": "ganti_dengan_id_dermaga"
+      "dermagaId": "6af2a8e78db382248b206f56"
     }
 order: 1790057171736
