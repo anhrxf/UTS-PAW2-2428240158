@@ -1,0 +1,15 @@
+$kind: http-request
+name: POST Tambah Dermaga
+url: http://localhost:3000/dermaga
+method: POST
+headers:
+  x-api-key: kunci-rahasia-uts
+  Content-Type: application/json
+body:
+  type: json
+  raw: |-
+    {
+      "kode": "DRM01",
+      "nama": "Dermaga Benteng Kuto Besak"
+    }
+order: 1790057171731

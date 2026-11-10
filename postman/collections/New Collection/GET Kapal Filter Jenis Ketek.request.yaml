@@ -1,0 +1,5 @@
+$kind: http-request
+name: GET Kapal Filter Jenis Ketek
+url: http://localhost:3000/kapal?jenis=ketek
+method: GET
+order: 1790057171737

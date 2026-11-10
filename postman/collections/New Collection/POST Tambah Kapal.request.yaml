@@ -1,0 +1,22 @@
+$kind: http-request
+name: POST Tambah Kapal
+url: http://localhost:3000/kapal
+method: POST
+headers:
+  x-api-key: kunci-rahasia-uts
+  Content-Type: application/json
+body:
+  type: json
+  raw: |-
+    {
+      "kodeKapal": "KPL-01",
+      "nama": "Contoh nama",
+      "kapasitas": 11,
+      "jenis": "speedboat",
+      "rute": {
+        "dermagaAwal": "Contoh dermagaAwal",
+        "dermagaTujuan": "Contoh dermagaTujuan"
+      },
+      "dermagaId": "ganti_dengan_id_dermaga"
+    }
+order: 1790057171736

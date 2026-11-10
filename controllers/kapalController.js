@@ -34,20 +34,24 @@ exports.getAll = async (req, res) => {
     filter['rute.dermagaTujuan'] = String(req.query.dermagaTujuan);
   }
 
-  const page = angkaAman(req.query.page, 1, 1, Number.MAX_SAFE_INTEGER);
-  const limit = angkaAman(req.query.limit, LIMIT_DEFAULT, 1, LIMIT_MAKS);
-  // ?sort=nama untuk urutan naik atau ?sort=-nama untuk urutan turun.
   const sortParam = String(req.query.sort || '-createdAt');
   const arah = sortParam.startsWith('-') ? -1 : 1;
   const sortField = sortParam.replace(/^-/, '');
   if (!FIELD_SORT.includes(sortField)) {
     throw errorHttp(400, `sort hanya boleh: ${FIELD_SORT.join(', ')}`);
   }
-  const data = await Kapal.find(filter)
+
+  let query = Kapal.find(filter)
     .select(FIELD_PROJECTION)
-    .sort({ [sortField]: arah, _id: 1 })
-    .skip((page - 1) * limit)
-    .limit(limit);
+    .sort({ [sortField]: arah, _id: 1 });
+
+  if (req.query.page || req.query.limit) {
+    const page = angkaAman(req.query.page, 1, 1, Number.MAX_SAFE_INTEGER);
+    const limit = angkaAman(req.query.limit, LIMIT_DEFAULT, 1, LIMIT_MAKS);
+    query = query.skip((page - 1) * limit).limit(limit);
+  }
+
+  const data = await query;
 
   res.json(data);
 };

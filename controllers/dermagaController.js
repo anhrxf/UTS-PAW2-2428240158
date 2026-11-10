@@ -6,14 +6,11 @@ exports.create = async (req, res) => {
 
 exports.getAll = async (req, res) => {
   const filter = {};
-  if (req.query.rute) {
-    filter.rute = String(req.query.rute);
-  }
-  if (req.query.jenis) {
-    filter.jenis = String(req.query.jenis);
-  }
   if (req.query.kode) {
     filter.kode = String(req.query.kode).toUpperCase();
+  }
+  if (req.query.nama) {
+    filter.nama = String(req.query.nama);
   }
   const data = await Dermaga.find(filter);
   res.json(data);

@@ -1,0 +1,5 @@
+$kind: http-request
+name: GET Semua Dermaga
+url: http://localhost:3000/dermaga
+method: GET
+order: 1790057171730

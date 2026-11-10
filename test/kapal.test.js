@@ -1,7 +1,10 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const mongoose = require('mongoose');
 const Kapal = require('../models/kapalModel');
-const controller = require('../controllers/kapalController');
+const Dermaga = require('../models/dermagaModel');
+const kapalController = require('../controllers/kapalController');
+const dermagaController = require('../controllers/dermagaController');
 
 function createResponse() {
   return {
@@ -49,7 +52,26 @@ function createQuery(data) {
   return { query, calls };
 }
 
-test('kapal schema requires kodeKapal, complete rute, and dermagaId', async () => {
+test('dermaga schema validates required fields and unique uppercase kode', async () => {
+  const dermaga = new Dermaga({
+    kode: 'drm01',
+    nama: 'Dermaga Benteng Kuto Besak',
+  });
+
+  await dermaga.validate();
+  assert.equal(dermaga.kode, 'DRM01');
+  assert.equal(dermaga.nama, 'Dermaga Benteng Kuto Besak');
+  assert.equal(Dermaga.schema.path('kode').options.unique, true);
+
+  const invalidDermaga = new Dermaga({});
+  await assert.rejects(invalidDermaga.validate(), (error) => {
+    assert.ok(error.errors.kode);
+    assert.ok(error.errors.nama);
+    return true;
+  });
+});
+
+test('kapal schema validates rules from Topik 35', async () => {
   const kapal = new Kapal({
     nama: 'Kapal Uji',
     kapasitas: 20,
@@ -64,10 +86,24 @@ test('kapal schema requires kodeKapal, complete rute, and dermagaId', async () =
     return true;
   });
   assert.equal(Kapal.schema.path('kodeKapal').options.unique, true);
+
+  const validKapal = new Kapal({
+    kodeKapal: 'KPL-01',
+    nama: 'Contoh nama',
+    kapasitas: 11,
+    jenis: 'speedboat',
+    rute: {
+      dermagaAwal: 'Contoh dermagaAwal',
+      dermagaTujuan: 'Contoh dermagaTujuan',
+    },
+    dermagaId: new mongoose.Types.ObjectId(),
+  });
+  await validKapal.validate();
+  assert.equal(validKapal.kodeKapal, 'KPL-01');
 });
 
 test('GET kapal returns projected array and applies type filter', async () => {
-  const rows = [{ kodeKapal: 'K001', nama: 'Kapal Uji', jenis: 'ketek' }];
+  const rows = [{ kodeKapal: 'KPL-01', nama: 'Kapal Uji', jenis: 'ketek' }];
   const { query, calls } = createQuery(rows);
   const originalFind = Kapal.find;
   Kapal.find = (filter) => {
@@ -77,7 +113,7 @@ test('GET kapal returns projected array and applies type filter', async () => {
   const res = createResponse();
 
   try {
-    await controller.getAll({ query: { jenis: 'ketek' } }, res);
+    await kapalController.getAll({ query: { jenis: 'ketek' } }, res);
   } finally {
     Kapal.find = originalFind;
   }
@@ -90,8 +126,8 @@ test('GET kapal returns projected array and applies type filter', async () => {
 
 test('GET kapal by ID populates dermaga code and name', async () => {
   const row = {
-    kodeKapal: 'K001',
-    dermagaId: { kode: 'D001', nama: 'Dermaga Palembang' },
+    kodeKapal: 'KPL-01',
+    dermagaId: { kode: 'DRM01', nama: 'Dermaga Benteng Kuto Besak' },
   };
   const { query, calls } = createQuery(row);
   const originalFindById = Kapal.findById;
@@ -102,7 +138,7 @@ test('GET kapal by ID populates dermaga code and name', async () => {
   const res = createResponse();
 
   try {
-    await controller.getById({ params: { id: 'kapal-id' } }, res);
+    await kapalController.getById({ params: { id: 'kapal-id' } }, res);
   } finally {
     Kapal.findById = originalFindById;
   }
@@ -119,7 +155,7 @@ test('GET kapal by unknown ID returns not found', async () => {
 
   try {
     await assert.rejects(
-      controller.getById({ params: { id: 'unknown-id' } }, createResponse()),
+      kapalController.getById({ params: { id: 'unknown-id' } }, createResponse()),
       { status: 404, message: 'Data tidak ditemukan' }
     );
   } finally {
